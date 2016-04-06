@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">NetEasy-Emmagee</string>
+    <string name="test">Test</string>
+    <string name="exit">Exit</string>
+    <string name="setting">Settings</string>
+    <string name="exit_dialog_title">Are you sure to exit ?</string>
+    <string name="exit_dialog_ok">OK</string>
+    <string name="exit_dialog_cancel">Cancel</string>
+
+</resources>
