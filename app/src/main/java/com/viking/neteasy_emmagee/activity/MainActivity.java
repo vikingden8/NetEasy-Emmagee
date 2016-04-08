@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Layout;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -101,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getOrder()) {
             case 0:
+                Log.i(TAG , "Enter onOptionsItemSelected ...exit") ;
                 showExitDialog();
                 break;
             case 1:
@@ -136,13 +138,12 @@ public class MainActivity extends AppCompatActivity {
                                 System.exit(0);
                             }
                         })
-                .setNegativeButton(R.string.exit_dialog_cancel, null).create();
+                .setNegativeButton(R.string.exit_dialog_cancel, null).create().show();
     }
 
     private class AppListAdapter extends BaseAdapter {
+        int tempPosition = -1 ;
         List<AppInfo> appInfos;
-
-        int tempPosition;
         LayoutInflater layoutInflater ;
         Context context ;
 
@@ -172,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
 
             ViewHolder viewHolder = null ;
             if (convertView == null){
-                convertView = layoutInflater.inflate(R.layout.app_list_item , parent , false) ;
+                convertView = layoutInflater.inflate(R.layout.app_list_item , null) ;
                 viewHolder = new ViewHolder() ;
                 viewHolder.appIcon = (ImageView) convertView.findViewById(R.id.appicon) ;
                 viewHolder.appName = (TextView) convertView.findViewById(R.id.appname) ;
@@ -182,9 +183,8 @@ public class MainActivity extends AppCompatActivity {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
             final int i = position ;
-            AppInfo appInfo = appInfos.get(position) ;
-            viewHolder.appIcon.setImageDrawable(appInfo.getIcon());
-            viewHolder.appName.setText(appInfo.getProcessName());
+            viewHolder.radioButton.setId(position);
+            viewHolder.radioButton.setChecked(false);
             viewHolder.radioButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -208,12 +208,14 @@ public class MainActivity extends AppCompatActivity {
                 if (!viewHolder.radioButton.isChecked())
                     viewHolder.radioButton.setChecked(true);
             }
-
+            AppInfo appInfo = appInfos.get(position) ;
+            viewHolder.appIcon.setImageDrawable(appInfo.getIcon());
+            viewHolder.appName.setText(appInfo.getProcessName());
             return convertView;
         }
     }
 
-    private static class ViewHolder{
+    private class ViewHolder{
         public TextView appName;
         public ImageView appIcon;
         public RadioButton radioButton;
