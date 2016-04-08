@@ -1,10 +1,13 @@
 package com.viking.neteasy_emmagee.activity;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Layout;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -45,7 +48,8 @@ public class MainActivity extends AppCompatActivity {
         processInfo = new ProcessInfo() ;
         btnTest = (Button) findViewById(R.id.btn_test);
         appsList = (ListView) findViewById(R.id.processList);
-        appsList.setAdapter(new AppListAdapter(processInfo.getRunningProcess(getApplicationContext()))) ;
+        appsList.setAdapter(new AppListAdapter(getApplicationContext() ,
+                processInfo.getRunningProcess(getApplicationContext()))) ;
         btnTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -139,8 +143,12 @@ public class MainActivity extends AppCompatActivity {
         List<AppInfo> appInfos;
 
         int tempPosition;
+        LayoutInflater layoutInflater ;
+        Context context ;
 
-        public AppListAdapter(List<AppInfo> appInfos) {
+        public AppListAdapter(Context context ,List<AppInfo> appInfos) {
+            this.context = context ;
+            layoutInflater = LayoutInflater.from(context) ;
             this.appInfos = appInfos;
         }
 
@@ -162,17 +170,25 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
 
-            ViewHolder viewHolder = new ViewHolder() ;
+            ViewHolder viewHolder = null ;
+            if (convertView == null){
+                convertView = layoutInflater.inflate(R.layout.app_list_item , parent , false) ;
+                viewHolder = new ViewHolder() ;
+                viewHolder.appIcon = (ImageView) convertView.findViewById(R.id.appicon) ;
+                viewHolder.appName = (TextView) convertView.findViewById(R.id.appname) ;
+                viewHolder.radioButton = (RadioButton) convertView.findViewById(R.id.rdBtn) ;
+                convertView.setTag(viewHolder);
+            }else {
+                viewHolder = (ViewHolder) convertView.getTag();
+            }
             final int i = position ;
-            convertView = getLayoutInflater().inflate(R.layout.app_list_item , null) ;
-            viewHolder.appIcon = (ImageView) convertView.findViewById(R.id.appicon);
-            viewHolder.radioButton = (RadioButton) convertView.findViewById(R.id.rdBtn);
-            viewHolder.appName = (TextView) convertView.findViewById(R.id.appname);
-            viewHolder.radioButton.setId(i);
+            AppInfo appInfo = appInfos.get(position) ;
+            viewHolder.appIcon.setImageDrawable(appInfo.getIcon());
+            viewHolder.appName.setText(appInfo.getProcessName());
             viewHolder.radioButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (isChecked){
+                    if (isChecked) {
                         isRadioChecked = true;
                         // Radio function
                         if (tempPosition != -1) {
@@ -192,17 +208,15 @@ public class MainActivity extends AppCompatActivity {
                 if (!viewHolder.radioButton.isChecked())
                     viewHolder.radioButton.setChecked(true);
             }
-            AppInfo appInfo = appInfos.get(position) ;
-            viewHolder.appIcon.setImageDrawable(appInfo.getIcon());
-            viewHolder.appName.setText(appInfo.getProcessName());
+
             return convertView;
         }
+    }
 
-        public class ViewHolder {
-            public TextView appName;
-            public ImageView appIcon;
-            public RadioButton radioButton;
-        }
+    private static class ViewHolder{
+        public TextView appName;
+        public ImageView appIcon;
+        public RadioButton radioButton;
     }
 
 
